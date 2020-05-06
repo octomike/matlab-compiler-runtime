@@ -1,0 +1,59 @@
+version: 2
+jobs:
+  build:
+    machine:
+      image: circleci/classic:latest
+    steps:
+      - checkout
+      - run:
+          name: Build Docker image
+          command: |
+            git describe --tags --always > version
+            docker build -t octomike/${CIRCLE_PROJECT_REPONAME,,} .
+            mkdir -p ${HOME}/docker
+            docker save "octomike/${CIRCLE_PROJECT_REPONAME,,}" > ~/docker/image.tar
+      - persist_to_workspace:
+          root: /home/circleci
+          paths:
+            - docker/image.tar
+  test:
+    machine:
+      image: circleci/classic:latest
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run: 
+          command: |
+            docker load -i /tmp/workspace/docker/image.tar
+            # figure out a better test
+            docker run -ti --rm --read-only --entrypoint /bin/sh octomike/${CIRCLE_PROJECT_REPONAME,,} -c 'test -d MCRPath/runtime/glnxa64'
+  deploy:
+    docker:
+      - image: circleci/buildpack-deps:stretch
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker
+      - run: docker load -i /tmp/workspace/docker/image.tar
+      - run:
+          command: |
+            if [[ -n "${CIRCLE_TAG}" ]]; then
+              docker login --username ${DOCKER_USER} --password ${DOCKER_PASS}
+              docker push octomike/${CIRCLE_PROJECT_REPONAME,,}:latest
+              docker tag octomike/${CIRCLE_PROJECT_REPONAME,,} octomike/${CIRCLE_PROJECT_REPONAME,,}:${CIRCLE_TAG}
+              docker push octomike/${CIRCLE_PROJECT_REPONAME,,}:${CIRCLE_TAG}
+            fi
+workflows:
+  version: 2
+  build-test-deploy:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+      - deploy:
+          requires:
+            - test
+          filters:
+            tags:
+              only: /.*/
