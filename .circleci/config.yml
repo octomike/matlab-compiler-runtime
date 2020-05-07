@@ -39,7 +39,6 @@ jobs:
           command: |
             if [[ -n "${CIRCLE_TAG}" ]]; then
               docker login --username ${DOCKER_USER} --password ${DOCKER_PASS}
-              docker push octomike/${CIRCLE_PROJECT_REPONAME,,}:latest
               docker tag octomike/${CIRCLE_PROJECT_REPONAME,,} octomike/${CIRCLE_PROJECT_REPONAME,,}:${CIRCLE_TAG}
               docker push octomike/${CIRCLE_PROJECT_REPONAME,,}:${CIRCLE_TAG}
             fi
@@ -47,13 +46,25 @@ workflows:
   version: 2
   build-test-deploy:
     jobs:
-      - build
+      - build:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
       - test:
           requires:
             - build
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
       - deploy:
           requires:
             - test
           filters:
             tags:
               only: /.*/
+            branches:
+              ignore: /.*/
