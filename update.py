@@ -78,6 +78,7 @@ for docker in dockers:
     if len(mcr_ver.split('.')) == 2:
         mcr_ver = mcr_ver + '.0'
     mcr_ver_maj = '.'.join(mcr_ver.split('.')[0:2])
+    mcr_ver_dir = 'v{}'.format(mcr_ver_maj.replace('.', ''))
     if not call('git checkout {}'.format(mcr_name)):
         call('git checkout -b {}'.format(mcr_name))
     if call('git rev-parse --verify {}'.format(mcr_ver)):
@@ -90,7 +91,7 @@ for docker in dockers:
         with open(template) as f:
             lines = f.read()
             lines = lines.replace('%%MATLAB_VERSION%%', mcr_name)
-            lines = lines.replace('%%MCR_VERSION%%', mcr_ver_maj)
+            lines = lines.replace('%%MCR_VERSION%%', mcr_ver_dir)
             lines = lines.replace('%%MCR_LINK%%', link)
             with open('Dockerfile', 'w+') as f2:
                 f2.write(lines)
