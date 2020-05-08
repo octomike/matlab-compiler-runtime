@@ -1,3 +1,10 @@
+tag_filter: &tag_filter
+  filters:
+    tags:
+      only: /.*/
+    branches:
+      ignore: /.*/
+
 version: 2
 jobs:
   build:
@@ -22,7 +29,7 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace
-      - run: 
+      - run:
           command: |
             docker load -i /tmp/workspace/docker/image.tar
             # figure out a better test
@@ -47,24 +54,12 @@ workflows:
   build-test-deploy:
     jobs:
       - build:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
+          <<: &tag_filter
       - test:
           requires:
             - build
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
+          <<: &tag_filter
       - deploy:
           requires:
             - test
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
+          <<: &tag_filter
