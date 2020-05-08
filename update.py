@@ -70,7 +70,7 @@ for row in soup.find_all('table')[0].find_all('tr'):
 
 variants = [
     ('Dockerfile-full.template', ''),
-    ('Dockerfile-core.template', '-core')
+    #('Dockerfile-core.template', '-core')
 ]
 
 for docker in dockers:
