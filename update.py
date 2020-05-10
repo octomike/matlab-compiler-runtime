@@ -70,7 +70,7 @@ for row in soup.find_all('table')[0].find_all('tr'):
 
 variants = [
     ('Dockerfile-full.template', ''),
-    #('Dockerfile-core.template', '-core')
+    ('Dockerfile-core.template', '-core')
 ]
 
 for docker in dockers:
@@ -81,13 +81,12 @@ for docker in dockers:
     mcr_ver_dir = 'v{}'.format(mcr_ver_maj.replace('.', ''))
     if not call('git checkout {}'.format(mcr_name)):
         call('git checkout -b {}'.format(mcr_name))
-    if call('git rev-parse --verify {}'.format(mcr_ver)):
-        print('Skipping {}/{}, already present'.format(mcr_name, mcr_ver))
-        call('git checkout master')
-        continue
-    call('git merge master')
     for (template, suffix) in variants:
+        if call('git rev-parse --verify {}{}'.format(mcr_ver, suffix)):
+            print('Skipping {}/{}{}, already present'.format(mcr_name, mcr_ver, suffix))
+            continue
         print('Adding {}/{}{}'.format(mcr_name, mcr_ver, suffix))
+        call('git merge master')
         with open(template) as f:
             lines = f.read()
             lines = lines.replace('%%MATLAB_VERSION%%', mcr_name)
