@@ -5,12 +5,13 @@ Dirty website parser to generate Dockerfiles for Matlab's MCR releases.
 Each Matlab release name (R2020a etc) gets a branch that contains a single
 Dockerfile and each release version (9.8.0 or 9.8.5 for 9.8 Update 5) becomes
 a tag in that branch. Each variant gets a new commit as well.
-So a sample history for R2020a could look like:
+So a sample history for R2020a could look something like this:
 
- + [R2020a] <9.8.1> Auto-Update
+ + [R2020a] <9.8.1-core> Auto-Update
  + <9.8.1> Auto-Update
+ + Merged master
  | \
- |  + Merged master
+ |  + Update in templates
  | /
  + <9.8.0-core> Auto-Update
  + <9.8.0> Auto-Update
