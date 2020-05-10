@@ -86,7 +86,6 @@ for docker in dockers:
         call('git checkout master')
         continue
     for (template, suffix) in variants:
-        call('git branch --show-current', show=True)
         print('Adding {}/{}{}'.format(mcr_name, mcr_ver, suffix))
         with open(template) as f:
             lines = f.read()

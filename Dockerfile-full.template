@@ -13,7 +13,6 @@ RUN mkdir /opt/mcr_install && \
     mkdir /opt/mcr && \
     wget --quiet -P /opt/mcr_install %%MCR_LINK%% && \
     unzip -q /opt/mcr_install/*.zip -d /opt/mcr_install && \
-
     /opt/mcr_install/install -destinationFolder /opt/mcr -agreeToLicense yes -mode silent && \
     rm -rf /opt/mcr_install /tmp/*
 
