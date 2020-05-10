@@ -33,7 +33,7 @@ from bs4 import BeautifulSoup
 REL_URL = 'https://www.mathworks.com/products/compiler/matlab-runtime.html'
 VER_LIMIT = '9.3' # release URLs get weird before that..
 
-def call(cmd, split=True, check=False):
+def call(cmd, split=True):
     if split:
         cmd = cmd.split()
     process = run(cmd, stdout=DEVNULL, stderr=DEVNULL)
@@ -111,5 +111,5 @@ for docker in dockers:
 if new_tags:
     print('New tags have been added, verify and update to git with:')
     print('git push --all')
-    for tag in new_tags:
+    for tag in reversed(new_tags):
         print('git push origin {}'.format(tag))
