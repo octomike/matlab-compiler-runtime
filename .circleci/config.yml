@@ -31,6 +31,7 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - run:
+          name: Test Docker image
           command: |
             docker load -i /tmp/workspace/docker/image.tar
             # figure out a better test
@@ -44,6 +45,7 @@ jobs:
       - setup_remote_docker
       - run: docker load -i /tmp/workspace/docker/image.tar
       - run:
+          name: Publish Docker image
           command: |
             if [[ -n "${CIRCLE_TAG}" ]]; then
               echo "${DOCKER_PASS}" | docker login --username "${DOCKER_USER}" --password-stdin
