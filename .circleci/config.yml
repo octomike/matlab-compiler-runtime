@@ -45,7 +45,7 @@ jobs:
       - run:
           command: |
             if [[ -n "${CIRCLE_TAG}" ]]; then
-              docker login --username ${DOCKER_USER} --password ${DOCKER_PASS}
+              echo "${DOCKER_PASS}" | docker login --username "${DOCKER_USER}" --password-stdin
               docker tag octomike/${CIRCLE_PROJECT_REPONAME,,} octomike/${CIRCLE_PROJECT_REPONAME,,}:${CIRCLE_TAG}
               docker push octomike/${CIRCLE_PROJECT_REPONAME,,}:${CIRCLE_TAG}
             fi
