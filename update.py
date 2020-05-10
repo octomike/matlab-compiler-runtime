@@ -85,6 +85,7 @@ for docker in dockers:
         print('Skipping {}/{}, already present'.format(mcr_name, mcr_ver))
         call('git checkout master')
         continue
+    call('git merge master')
     for (template, suffix) in variants:
         print('Adding {}/{}{}'.format(mcr_name, mcr_ver, suffix))
         with open(template) as f:
