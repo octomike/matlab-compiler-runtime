@@ -1,17 +1,24 @@
 #!/usr/bin/env python3
 """
-Dirty website parser to get updates for Matlab's MCR.
+Dirty website parser to generate Dockerfiles for Matlab's MCR releases.
 
 Each Matlab release name (R2020a etc) gets a branch that contains a single
-Dockerfile and each release version (9.8 or 9.8.5 for 9.8 Update 5) becomes
-a tag in that branch. So a sample history for R2020a could look like:
+Dockerfile and each release version (9.8.0 or 9.8.5 for 9.8 Update 5) becomes
+a tag in that branch. Each variant gets a new commit as well.
+So a sample history for R2020a could look like:
 
- + [R2020a] <9.8> <9.8.2> Auto-Update
+ + [R2020a] <9.8.1> Auto-Update
  + <9.8.1> Auto-Update
+ | \
+ |  + Merged master
+ | /
+ + <9.8.0-core> Auto-Update
  + <9.8.0> Auto-Update
  + <master> Import
 
-(Circle)CI should then fire a docker build and push for every tag received.
+(Circle)CI should then fire a docker build and push for every tag only. Shared
+tags for the major version (e.g. 9.8 always pointing to the latest 9.8 tag are
+done in Circle CI to avoid duplicate builds).
 
 Update.py should be run often enough to catch individual matlab releae updates.
 """
@@ -24,15 +31,12 @@ from packaging import version
 from bs4 import BeautifulSoup
 
 REL_URL = 'https://www.mathworks.com/products/compiler/matlab-runtime.html'
-VER_LIMIT = '9.3'
+VER_LIMIT = '9.3' # release URLs get weird before that..
 
-def call(cmd, split=True, show=False):
+def call(cmd, split=True, check=False):
     if split:
         cmd = cmd.split()
-    if show:
-        process = run(cmd)
-    else:
-        process = run(cmd, stdout=DEVNULL, stderr=DEVNULL)
+    process = run(cmd, stdout=DEVNULL, stderr=DEVNULL)
     return process.returncode == 0
 
 
@@ -88,7 +92,8 @@ for docker in dockers:
             print('Skipping {}/{}, already present'.format(mcr_name, tag))
             continue
         print('Adding {}/{}'.format(mcr_name, tag))
-        call('git merge master')
+        if not call('git merge master'):
+            raise RuntimeError('Merging master failed, will not continue')
         with open(template) as f:
             lines = f.read()
             lines = lines.replace('%%MATLAB_VERSION%%', mcr_name)
@@ -97,12 +102,10 @@ for docker in dockers:
             with open('Dockerfile', 'w+') as f2:
                 f2.write(lines)
             call('git add Dockerfile')
+            # Tag X.Y.Z[-variant] - see circle CI for shared tag X.Y[-variant] 
             call(['git', 'commit', '-m', 'Auto-Update'], split=False)
             call('git tag {}'.format(tag))
-            if mcr_ver != mcr_ver_maj:
-                print('Adding {}/{}'.format(mcr_name, tag))
-                call('git tag {}'.format(tag))
-                new_tags.append(tag)
+            new_tags.append(tag)
     call('git checkout master')
 
 if new_tags:
