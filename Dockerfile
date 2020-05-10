@@ -20,7 +20,6 @@ RUN mkdir /opt/mcr_install && \
     rm -rf archives && mv save/archives . && rmdir save && \
     /opt/mcr_install/install -destinationFolder /opt/mcr -agreeToLicense yes -mode silent && \
     rm -rf /opt/mcr_install /tmp/* && \
-    rm -rf /opt/mcr/*/resources && \
     rm -rf /opt/mcr/*/cefclient && \
     rm -rf /opt/mcr/*/mcr/toolbox/matlab/maps && \
     rm -rf /opt/mcr/*/java/jarext && \
