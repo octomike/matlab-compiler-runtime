@@ -72,6 +72,7 @@ variants = [
     ('Dockerfile-full.template', ''),
     ('Dockerfile-core.template', '-core')
 ]
+new_tags = []
 
 for docker in dockers:
     mcr_name, mcr_ver, link = docker
@@ -82,10 +83,11 @@ for docker in dockers:
     if not call('git checkout {}'.format(mcr_name)):
         call('git checkout -b {}'.format(mcr_name))
     for (template, suffix) in variants:
-        if call('git rev-parse --verify {}{}'.format(mcr_ver, suffix)):
-            print('Skipping {}/{}{}, already present'.format(mcr_name, mcr_ver, suffix))
+        tag = '{}{}'.format(mcr_ver, suffix)
+        if call('git rev-parse --verify {}'.format(tag)):
+            print('Skipping {}/{}, already present'.format(mcr_name, tag))
             continue
-        print('Adding {}/{}{}'.format(mcr_name, mcr_ver, suffix))
+        print('Adding {}/{}'.format(mcr_name, tag))
         call('git merge master')
         with open(template) as f:
             lines = f.read()
@@ -96,8 +98,15 @@ for docker in dockers:
                 f2.write(lines)
             call('git add Dockerfile')
             call(['git', 'commit', '-m', 'Auto-Update'], split=False)
-            call('git tag {}{}'.format(mcr_ver, suffix))
+            call('git tag {}'.format(tag))
             if mcr_ver != mcr_ver_maj:
-                print('Adding {}/{}{}'.format(mcr_name, mcr_ver_maj, suffix))
-                call('git tag {}{}'.format(mcr_ver_maj, suffix))
+                print('Adding {}/{}'.format(mcr_name, tag))
+                call('git tag {}'.format(tag))
+                new_tags.append(tag)
     call('git checkout master')
+
+if new_tags:
+    print('New tags have been added, verify and update to git with:')
+    print('git push --all')
+    for tag in new_tags:
+        print('git push origin {}'.format(tag))
