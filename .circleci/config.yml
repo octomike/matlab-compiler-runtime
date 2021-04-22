@@ -41,6 +41,11 @@ jobs:
             docker load -i /tmp/workspace/docker/image.tar
             # figure out a better test
             docker run -ti --rm --read-only --entrypoint /bin/sh octomike/${CIRCLE_PROJECT_REPONAME,,} -c 'test -d ${MCR_HOME}/runtime/glnxa64'
+            ls -l /tmp/workspace/
+            ls -l /tmp/workspace/docker/
+            cat /tmp/workspace/branch
+            BRANCH=$(cat /tmp/workspace/branch)
+            test ! -z $BRANCH
   deploy:
     docker:
       - image: circleci/buildpack-deps:stretch
