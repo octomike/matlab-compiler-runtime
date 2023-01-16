@@ -9,13 +9,13 @@ So a sample history for R2020a could look something like this:
 
  + [R2020a] <9.8.1-core> Auto-Update
  + <9.8.1> Auto-Update
- + Merged master
+ + Merged main
  | \
  |  + Update in templates
  | /
  + <9.8.0-core> Auto-Update
  + <9.8.0> Auto-Update
- + <master> Import
+ + <main> Import
 
 (Circle)CI should then fire a docker build and push for every tag only. Shared
 tags for the major version (e.g. 9.8 always pointing to the latest 9.8 tag are
@@ -93,8 +93,8 @@ for docker in dockers:
             print('Skipping {}/{}, already present'.format(mcr_name, tag))
             continue
         print('Adding {}/{}'.format(mcr_name, tag))
-        if not call('git merge master'):
-            raise RuntimeError('Merging master failed, will not continue')
+        if not call('git merge main'):
+            raise RuntimeError('Merging main failed, will not continue')
         with open(template) as f:
             lines = f.read()
             lines = lines.replace('%%MATLAB_VERSION%%', mcr_name)
@@ -107,7 +107,7 @@ for docker in dockers:
             call(['git', 'commit', '-m', 'Auto-Update'], split=False)
             call('git tag {}'.format(tag))
             new_tags.append(tag)
-    call('git checkout master')
+    call('git checkout main')
 
 if new_tags:
     print('New tags have been added, verify and update to git with:')
