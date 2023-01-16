@@ -47,7 +47,7 @@ with request.urlopen(REL_URL) as res:
     html = res.read()
 
 soup = BeautifulSoup(html, 'html.parser')
-ver_re = re.compile(r'(R2\d{3}.) \((\d\.\d)\)')
+ver_re = re.compile(r'(R2\d{3}.) \((\d\.\d+)\)')
 rel_re = re.compile(r'Release/(\d+)/')
 
 dockers = []
