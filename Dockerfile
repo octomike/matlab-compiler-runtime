@@ -1,6 +1,7 @@
 FROM bids/base_validator
 
 # Update system
+ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get -qq update && apt-get -qq install -y \
     unzip \
     xorg \
