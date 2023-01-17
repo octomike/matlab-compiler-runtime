@@ -63,7 +63,7 @@ jobs:
               # append variant if it exists
               VARIANT=$(echo "${CIRCLE_TAG}" |  sed -rn 's#(.+)(-.+)#\2#p')
               BRANCH=$(cat /tmp/workspace/branch)
-              docker tag octomike/${CIRCLE_PROJECT_REPONAME,,} octomike/${CIRCLE_PROJECT_REPONAME,,}:${BRANCH}
+              docker tag octomike/${CIRCLE_PROJECT_REPONAME,,} octomike/${CIRCLE_PROJECT_REPONAME,,}:${BRANCH}${VARIANT}
               docker push octomike/${CIRCLE_PROJECT_REPONAME,,}:${BRANCH}${VARIANT}
               # update major tag X.Y[-variant] to the latest in this branch
               MAJOR_TAG=$(echo "${CIRCLE_TAG}" | sed -rn 's#(\d+).(\d+).(\d+)(.*)#\1.\2\4#p')
