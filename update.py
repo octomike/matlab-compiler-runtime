@@ -59,7 +59,7 @@ for row in soup.find_all('table')[0].find_all('tr'):
         if not match:
             continue
         mcr_name, mcr_ver = match.groups()
-        if version.parse(mcr_ver) <= version.parse(VER_LIMIT):
+        if version.parse(mcr_ver) < version.parse(VER_LIMIT):
             continue
         try:
             link = tds[2].a.get('href')
