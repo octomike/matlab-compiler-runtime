@@ -8,10 +8,11 @@ tag_filter: &tag_filter
 version: 2
 jobs:
   build:
-    machine:
-      image: circleci/classic:latest
+    docker:
+      - image: cimg/base:current
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Build Docker image
           command: |
@@ -30,11 +31,12 @@ jobs:
             - docker/image.tar
             - branch
   test:
-    machine:
-      image: circleci/classic:latest
+    docker:
+      - image: cimg/base:current
     steps:
       - attach_workspace:
           at: /tmp/workspace
+      - setup_remote_docker
       - run:
           name: Test Docker image
           command: |
@@ -48,7 +50,7 @@ jobs:
             test ! -z $BRANCH
   deploy:
     docker:
-      - image: circleci/buildpack-deps:stretch
+      - image: circleci/buildpack-deps:latest
     steps:
       - attach_workspace:
           at: /tmp/workspace
