@@ -60,11 +60,13 @@ jobs:
               docker tag octomike/${CIRCLE_PROJECT_REPONAME,,} octomike/${CIRCLE_PROJECT_REPONAME,,}:${CIRCLE_TAG}
               docker push octomike/${CIRCLE_PROJECT_REPONAME,,}:${CIRCLE_TAG}
               # also publish tag for the corresponding matlab release version, which is the name of the current branch
+              # append variant if it exists
+              VARIANT=$(echo "${CIRCLE_TAG}" |  sed -rn 's#(.+)(-.+)#\2#p')
               BRANCH=$(cat /tmp/workspace/branch)
               docker tag octomike/${CIRCLE_PROJECT_REPONAME,,} octomike/${CIRCLE_PROJECT_REPONAME,,}:${BRANCH}
-              docker push octomike/${CIRCLE_PROJECT_REPONAME,,}:${BRANCH}
+              docker push octomike/${CIRCLE_PROJECT_REPONAME,,}:${BRANCH}${VARIANT}
               # update major tag X.Y[-variant] to the latest in this branch
-              MAJOR_TAG=$(echo "${CIRCLE_TAG}" | sed -rn 's#([[:digit:]]+).([[:digit:]]+).([[:digit:]]+)(.*)#\1.\2\4#p')
+              MAJOR_TAG=$(echo "${CIRCLE_TAG}" | sed -rn 's#(\d+).(\d+).(\d+)(.*)#\1.\2\4#p')
               if [[ -n "${MAJOR_TAG}" ]] ; then
                 docker tag octomike/${CIRCLE_PROJECT_REPONAME,,} octomike/${CIRCLE_PROJECT_REPONAME,,}:${MAJOR_TAG}
                 docker push octomike/${CIRCLE_PROJECT_REPONAME,,}:${MAJOR_TAG}
