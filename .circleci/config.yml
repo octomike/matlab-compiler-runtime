@@ -70,7 +70,7 @@ jobs:
               docker tag octomike/${CIRCLE_PROJECT_REPONAME,,} octomike/${CIRCLE_PROJECT_REPONAME,,}:${BRANCH}${VARIANT}
               docker push octomike/${CIRCLE_PROJECT_REPONAME,,}:${BRANCH}${VARIANT}
               # update major tag X.Y[-variant] to the latest in this branch
-              MAJOR_TAG=$(echo "${CIRCLE_TAG}" | sed -rn 's#(\d+).(\d+).(\d+)(.*)#\1.\2\4#p')
+              MAJOR_TAG=$(echo "${CIRCLE_TAG}" | sed -rn 's#([0-9]+).([0-9]+).([0-9]+)(.*)#\1.\2\4#p')
               if [[ -n "${MAJOR_TAG}" ]] ; then
                 docker tag octomike/${CIRCLE_PROJECT_REPONAME,,} octomike/${CIRCLE_PROJECT_REPONAME,,}:${MAJOR_TAG}
                 docker push octomike/${CIRCLE_PROJECT_REPONAME,,}:${MAJOR_TAG}
