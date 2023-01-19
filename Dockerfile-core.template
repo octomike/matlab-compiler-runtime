@@ -1,4 +1,4 @@
-FROM bids/base_validator
+FROM ubuntu:22.04
 
 # Update system
 ARG DEBIAN_FRONTEND=noninteractive
