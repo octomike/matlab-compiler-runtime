@@ -23,7 +23,6 @@ RUN mkdir /opt/mcr_install && \
     rm -rf /opt/mcr_install /tmp/* && \
     rm -rf /opt/mcr/*/cefclient && \
     rm -rf /opt/mcr/*/mcr/toolbox/matlab/maps && \
-    rm -rf /opt/mcr/*/java/jarext && \
     rm -rf /opt/mcr/*/toolbox/matlab/system/editor && \
     rm -rf /opt/mcr/*/toolbox/matlab/codetools && \
     rm -rf /opt/mcr/*/toolbox/matlab/datatools && \
