@@ -12,14 +12,16 @@ jobs:
       - image: cimg/base:current
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
           name: Build Docker image
           command: |
             # persist guessed branch so we can use it in deploy/tag
             # can't use CIRCLE_BRANCH, because we are running for tags only
             BRANCH=$(git branch -r --contains tags/${CIRCLE_TAG} | cut -d"/" -f2)
-            echo -n ${BRANCH} > ~/branch
+            if [[ -z "${BRANCH}" ]] ; then echo "tag is not on branch, stop" ; exit 1 ; fi
+            echo -n ${BRANCH} > ${HOME}/branch
             git describe --tags --always > version
             docker build -t octomike/${CIRCLE_PROJECT_REPONAME,,} .
             mkdir -p ${HOME}/docker
@@ -36,7 +38,8 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
           name: Test Docker image
           command: |
@@ -49,7 +52,8 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run: docker load -i /tmp/workspace/docker/image.tar
       - run:
           name: Publish Docker image
@@ -61,8 +65,8 @@ jobs:
               docker push octomike/${CIRCLE_PROJECT_REPONAME,,}:${CIRCLE_TAG}
               # also publish tag for the corresponding matlab release version, which is the name of the current branch
               # append variant if it exists
-              VARIANT=$(echo "${CIRCLE_TAG}" |  sed -rn 's#(.+)(-.+)#\2#p')
               BRANCH=$(cat /tmp/workspace/branch)
+              VARIANT=$(echo "${CIRCLE_TAG}" |  sed -rn 's#(.+)(-.+)#\2#p')
               docker tag octomike/${CIRCLE_PROJECT_REPONAME,,} octomike/${CIRCLE_PROJECT_REPONAME,,}:${BRANCH}${VARIANT}
               docker push octomike/${CIRCLE_PROJECT_REPONAME,,}:${BRANCH}${VARIANT}
               # update major tag X.Y[-variant] to the latest in this branch
