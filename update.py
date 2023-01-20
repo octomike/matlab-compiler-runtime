@@ -59,18 +59,18 @@ for row in soup.find_all('table')[0].find_all('tr'):
         if not match:
             continue
         mcr_name, mcr_ver = match.groups()
-        if version.parse(mcr_ver) <= version.parse(VER_LIMIT):
+        if version.parse(mcr_ver) < version.parse(VER_LIMIT):
             continue
         try:
-            link = tds[2].a.get('href')
+            url = tds[2].a.get('href')
         except (KeyError, ValueError):
             raise RuntimeError('Error parsing matlab release page')
-        if 'glnxa64' not in link:
-            raise RuntimeError('Error parsing matlab release page link')
-        match = rel_re.search(link)
+        if 'glnxa64' not in url:
+            raise RuntimeError('Error parsing matlab release page url')
+        match = rel_re.search(url)
         if match:
             mcr_ver = '{}.{}'.format(mcr_ver, match.groups()[0])
-        dockers.append((mcr_name, mcr_ver, link))
+        dockers.append((mcr_name, mcr_ver, url))
 
 
 variants = [
@@ -80,11 +80,11 @@ variants = [
 new_tags = []
 
 for docker in dockers:
-    mcr_name, mcr_ver, link = docker
+    mcr_name, mcr_ver, url = docker
     if len(mcr_ver.split('.')) == 2:
         mcr_ver = mcr_ver + '.0'
     mcr_ver_maj = '.'.join(mcr_ver.split('.')[0:2])
-    mcr_ver_dir = 'v{}'.format(mcr_ver_maj.replace('.', ''))
+    mcr_ver_full = 'v{}'.format(mcr_ver_maj.replace('.', ''))
     if not call('git checkout {}'.format(mcr_name)):
         call('git checkout -b {}'.format(mcr_name))
     for (template, suffix) in variants:
@@ -97,9 +97,17 @@ for docker in dockers:
             raise RuntimeError('Merging main failed, will not continue')
         with open(template) as f:
             lines = f.read()
+            # "R20NNz" release name
             lines = lines.replace('%%MATLAB_VERSION%%', mcr_name)
-            lines = lines.replace('%%MCR_VERSION%%', mcr_ver_dir)
-            lines = lines.replace('%%MCR_LINK%%', link)
+            # mcr_ver_full is the (historical?) v9xx name
+            # starting with R2022b it seems Mathworks decided to use the
+            # R20NNz release naming scheme for the version path component
+            if version.parse(mcr_ver) >= version.parse('9.13.0'):
+                lines = lines.replace('%%MCR_RELEASE%%', mcr_name)
+            else:
+                lines = lines.replace('%%MCR_RELEASE%%', mcr_ver_full)
+            lines = lines.replace('%%MCR_VERSION%%', mcr_ver_full)
+            lines = lines.replace('%%MCR_URL%%', url)
             with open('Dockerfile', 'w+') as f2:
                 f2.write(lines)
             call('git add Dockerfile')
