@@ -1,7 +1,7 @@
-FROM bids/base_validator
+FROM ubuntu:22.04
 
 # Update system
-ENV DEBIAN_FRONTEND noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get -qq update && apt-get -qq install -y \
     unzip \
     xorg \
@@ -23,7 +23,6 @@ RUN mkdir /opt/mcr_install && \
     rm -rf /opt/mcr_install /tmp/* && \
     rm -rf /opt/mcr/*/cefclient && \
     rm -rf /opt/mcr/*/mcr/toolbox/matlab/maps && \
-    rm -rf /opt/mcr/*/java/jarext && \
     rm -rf /opt/mcr/*/toolbox/matlab/system/editor && \
     rm -rf /opt/mcr/*/toolbox/matlab/codetools && \
     rm -rf /opt/mcr/*/toolbox/matlab/datatools && \
@@ -35,6 +34,12 @@ RUN mkdir /opt/mcr_install && \
     rm -rf /opt/mcr/*/bin/glnxa64/libQt* && \
     rm -rf /opt/mcr/*/bin/glnxa64/qtwebengine && \
     rm -rf /opt/mcr/*/bin/glnxa64/cef_resources
+
+# MCR does not provide libfontconfig and the bundled libfreetype is
+# incompatbile to the system version. This is a common issue and the easiest
+# fix is to hide/delete the bundle libfreetype and implicitly use the system
+# version.
+RUN rm -f /opt/mcr/*/bin/glnxa64/libfreetype.so*
 
 # Configure environment
 ENV MCR_VERSION %%MCR_VERSION%%
