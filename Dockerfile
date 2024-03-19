@@ -12,28 +12,10 @@ RUN apt-get -qq update && apt-get -qq install -y \
 ENV MATLAB_VERSION R2022a
 RUN mkdir /opt/mcr_install && \
     mkdir /opt/mcr && \
-    wget --quiet -P /opt/mcr_install https://ssd.mathworks.com/supportfiles/downloads/R2022a/Release/7/deployment_files/installer/complete/glnxa64/MATLAB_Runtime_R2022a_Update_7_glnxa64.zip && \
-    unzip -q /opt/mcr_install/*${MATLAB_VERSION}*.zip -d /opt/mcr_install && \
-    cd /opt/mcr_install && mkdir save && \
-    for f in $(grep -E '(xml|enc)$' productdata/1000.txt) ; do  cp --parents archives/$f save/ ; done && \
-    for f in $(grep -E '(xml|enc)$' productdata/35000.txt) ; do  cp --parents archives/$f save/ ; done && \
-    for f in $(grep -E '(xml|enc)$' productdata/35010.txt) ; do  cp --parents archives/$f save/ ; done && \
-    rm -rf archives && mv save/archives . && rmdir save && \
+    wget --quiet -P /opt/mcr_install https://ssd.mathworks.com/supportfiles/downloads/R2022a/Release/8/deployment_files/installer/complete/glnxa64/MATLAB_Runtime_R2022a_Update_8_glnxa64.zip && \
+    unzip -q /opt/mcr_install/*.zip -d /opt/mcr_install && \
     /opt/mcr_install/install -destinationFolder /opt/mcr -agreeToLicense yes -mode silent && \
-    rm -rf /opt/mcr_install /tmp/* && \
-    rm -rf /opt/mcr/*/cefclient && \
-    rm -rf /opt/mcr/*/mcr/toolbox/matlab/maps && \
-    rm -rf /opt/mcr/*/toolbox/matlab/system/editor && \
-    rm -rf /opt/mcr/*/toolbox/matlab/codetools && \
-    rm -rf /opt/mcr/*/toolbox/matlab/datatools && \
-    rm -rf /opt/mcr/*/toolbox/matlab/codeanalysis && \
-    rm -rf /opt/mcr/*/toolbox/shared/dastudio && \
-    rm -rf /opt/mcr/*/toolbox/shared/mlreportgen && \
-    rm -rf /opt/mcr/*/sys/java/jre/glnxa64/jre/lib/ext/jfxrt.jar && \
-    rm -rf /opt/mcr/*/sys/java/jre/glnxa64/jre/lib/amd64/libjfxwebkit.so && \
-    rm -rf /opt/mcr/*/bin/glnxa64/libQt* && \
-    rm -rf /opt/mcr/*/bin/glnxa64/qtwebengine && \
-    rm -rf /opt/mcr/*/bin/glnxa64/cef_resources
+    rm -rf /opt/mcr_install /tmp/*
 
 # MCR does not provide libfontconfig and the bundled libfreetype is
 # incompatbile to the system version. This is a common issue and the easiest
